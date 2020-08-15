@@ -47,10 +47,10 @@ class DomainWhitelistRepository
      * @param int $id
      * @return bool
      */
-    public function update(array $model, int $id): bool
+    public function update(Object $model, int $id): bool
     {
 
-        if (sizeof($model) == 0) {
+        if ($model == null) {
             return false;
         }
 

@@ -79,9 +79,9 @@ class Utils
      * Validate the headers to enable the security for incoming request.
      *
      * @param boolean $isAdminHeaders
-     * @return void
+     * @return bool
      */
-    public static function validateHeaders(bool $isAdminHeaders = false)
+    public static function validateHeaders(bool $isAdminHeaders = false): bool
     {
 
         $headers = getallheaders();
@@ -124,19 +124,19 @@ class Utils
         // =======================================================================
         if ($isAdminHeaders == true) {
 
-            if (!isset($headers["X-Api-Key"])) {
+            if (!isset($headers["x-api-key"])) {
 
                 http_response_code(406);
                 echo "x-api-key header is missing";
                 return false;
 
-            } else if (empty($headers["X-Api-Key"])) {
+            } else if (empty($headers["x-api-key"])) {
 
                 http_response_code(406);
                 echo "x-api-key value is missing";
                 return false;
 
-            } else if (Utils::decryptText($headers["X-Api-Key"]) !== "G-PHP-BaaS-$ip") {
+            } else if (Utils::decryptText($headers["x-api-key"]) !== "G-PHP-BaaS-$ip") {
 
                 http_response_code(401);
                 echo "x-api-key is not valid";
@@ -253,4 +253,62 @@ class Utils
         return $guidv4;
     }
 
+    /**
+     * Generates the .htaccess file with all the configuration needed for application.
+     */
+    public static function generateHtAccess()
+    {
+
+        // open template file for reading and store the content to variable
+        $fp_template = fopen($_SERVER["DOCUMENT_ROOT"] . '/htaccess.template', 'r');
+        $template = fread($fp_template, filesize($_SERVER["DOCUMENT_ROOT"] . "/htaccess.template"));
+        fclose($fp_template);
+
+        $app_rewrites = "";
+        // get all the registered applications
+        $app_repo = new ApplicationRepository();
+        $app_listings = $app_repo->getAll();
+
+        $app_domain_repo = new DomainWhitelistRepository();
+        foreach ($app_listings as $app) {
+
+            $app_rewrites .= "    # app = $app->name" . "\n";
+            // if application have any whitelisting
+            $app_whitelists = $app_domain_repo->getByApplicationId($app->id);
+            if ($app_whitelists != null) {
+                $isOr = sizeof($app_whitelists) > 0 ? "[OR]" : "";
+                $cnt = 0;
+                foreach ($app_whitelists as $listing) {
+
+                    // dont add [OR] in last condition
+                    if ($cnt == sizeof($app_whitelists) - 1) $isOr = "";
+
+                    if (!empty($listing->domain)) {
+
+                        $app_rewrites .= "    RewriteCond %{HTTP_HOST} =$listing->domain $isOr" . "\n";
+
+                    } else if (!empty($listing->ip_address)) {
+
+                        $escaped_ip = str_replace(".", "\.", $listing->ip_address);
+                        $app_rewrites .= "    RewriteCond %{REMOTE_ADDR} =^$escaped_ip$ $isOr" . "\n";
+
+                    }
+
+                    $cnt++;
+                }
+            }
+
+            $app_rewrites .= "    RewriteRule /api/$app->app_api_slug/(.*)$ api/generic/api.php [QSA,NC,L]" . "\n\r";
+
+        }
+
+        $template = str_replace("{app_rewrites}", $app_rewrites, $template);
+
+        // write the final template to .htaccess file and close it.
+        $fp = fopen($_SERVER["DOCUMENT_ROOT"] . '/.htaccess', 'w+');
+        if ($fp) {
+            fwrite($fp, $template);
+            fclose($fp);
+        }
+    }
 }

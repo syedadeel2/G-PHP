@@ -30,7 +30,7 @@ class ApplicationRepository
     public function insert(Application $model): bool
     {
 
-        $sql = "INSERT INTO $this->TABLE (name, description, app_key) VALUES ('$model->name', '$model->description', '$model->app_key')";
+        $sql = "INSERT INTO $this->TABLE (name, description, app_key, app_api_slug) VALUES ('$model->name', '$model->description', '$model->app_key', '$model->app_api_slug')";
 
         if ($this->dbLink->query($sql) === true) {
             return true;
@@ -43,14 +43,14 @@ class ApplicationRepository
     /**
      * Updates the existing record to database
      *
-     * @param array $model
+     * @param Object $model
      * @param int $id
      * @return bool
      */
-    public function update(array $model, int $id): bool
+    public function update(Object $model, int $id): bool
     {
 
-        if (sizeof($model) == 0) {
+        if ($model == null) {
             return false;
         }
 
@@ -79,7 +79,7 @@ class ApplicationRepository
     public function remove(int $id): bool
     {
 
-        $sql = "DELETE FROM $this->TABLE WHERE id = $id";
+        $sql = "DELETE FROM $this->TABLE WHERE id=$id";
 
         if ($this->dbLink->query($sql) === true) {
             return true;
