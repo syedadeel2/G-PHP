@@ -43,11 +43,14 @@ class DomainWhitelistRepository
     /**
      * Updates the existing record to database
      *
-     * @param array $model
+     * @param Object $model
      * @param int $id
+     * @param bool $is_app_id
+     * @param null $domain
+     * @param null $ip_address
      * @return bool
      */
-    public function update(Object $model, int $id): bool
+    public function update(Object $model, int $id, bool $is_app_id = false, $domain = null, $ip_address = null): bool
     {
 
         if ($model == null) {
@@ -60,7 +63,14 @@ class DomainWhitelistRepository
             $sql .= "$key = '$value'";
         }
 
-        $sql .= " WHERE id = $id";
+        if ($is_app_id == false) {
+            $sql .= " WHERE id = $id";
+        } else {
+            $sql .= " WHERE application_id = $id";
+        }
+
+        if ($domain != null) $sql .= " AND domain = '$domain'";
+        if ($ip_address != null) $sql .= " AND ip_address = '$ip_address'";
 
         if ($this->dbLink->query($sql) === true) {
             return true;

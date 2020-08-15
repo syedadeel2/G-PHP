@@ -24,6 +24,10 @@ deny from all
     RewriteRule api/admin api/application/app.php [QSA,NC,L]
 
     # app = 24h Fitness Gym
+    RewriteCond %{HTTP_HOST} =domain6.com [OR]
+    RewriteCond %{HTTP_HOST} =domain2.com [OR]
+    RewriteCond %{HTTP_HOST} =domain3.com [OR]
+    RewriteCond %{REMOTE_ADDR} =^192\.168\.0\.1$ 
     RewriteRule /api/azeem/(.*)$ api/generic/api.php [QSA,NC,L]
 
 </IfModule>
