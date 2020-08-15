@@ -1,0 +1,37 @@
+# Method Config
+<LimitExcept GET POST DELETE PUT OPTIONS>
+	Order Allow,Deny
+	Deny from all
+</LimitExcept>
+
+# Prevent directory listings
+Options All -Indexes
+
+# Prevent viewing of .htaccess file
+<Files .htaccess>
+order allow,deny
+deny from all
+</Files>
+
+# URL Rewrite
+<IfModule mod_rewrite.c>
+    Options +FollowSymLinks
+    RewriteEngine On
+    RewriteBase /
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule keys/gen generate_key.php [QSA,NC,L]
+    RewriteRule api/admin api/application/app.php [QSA,NC,L]
+
+    # app = 24h Fitness Gym
+    RewriteRule /api/azeem/(.*)$ api/generic/api.php [QSA,NC,L]
+
+</IfModule>
+
+
+
+
+
+
+
+
