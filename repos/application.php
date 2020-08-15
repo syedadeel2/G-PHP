@@ -25,15 +25,15 @@ class ApplicationRepository
      * Insert new application record to database
      *
      * @param Application $model
-     * @return bool
+     * @return false|mixed
      */
-    public function insert(Application $model): bool
+    public function insert(Application $model)
     {
 
         $sql = "INSERT INTO $this->TABLE (name, description, app_key, app_api_slug) VALUES ('$model->name', '$model->description', '$model->app_key', '$model->app_api_slug')";
 
         if ($this->dbLink->query($sql) === true) {
-            return true;
+            return $this->dbLink->insert_id;
         } else {
             return false;
         }
