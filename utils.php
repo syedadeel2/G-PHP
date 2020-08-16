@@ -151,51 +151,26 @@ class Utils
         // =======================================================================
         if ($isAdminHeaders == false) {
 
-            if (!isset($headers["G-Api-Key"])) {
+            if (!isset($headers["g-api-key"])) {
 
                 http_response_code(406);
                 echo "g-api-key header is missing";
                 return false;
 
-            } else if (empty($headers["G-Api-Key"])) {
+            } else if (empty($headers["g-api-key"])) {
 
                 http_response_code(406);
                 echo "g-api-key value is missing";
                 return false;
 
-            } else if (!empty($headers["G-Api-Key"])) {
+            } else if (!empty($headers["g-api-key"])) {
 
-                $key = $headers["G-Api-Key"];
+                $key = $headers["g-api-key"];
                 $app = $app_repo->getByKey($key);
 
                 if ($app == null) {
                     http_response_code(401);
                     echo "g-api-key is not valid";
-                    return false;
-                }
-
-            }
-
-        }
-        // =======================================================================
-
-        // Validate the origin for generic calls if application is found and if there any
-        // whitelisted enabled
-        // =======================================================================
-        if ($isAdminHeaders == false) {
-
-            $whitelists = $app_domain_repo->getByApplicationId($app->id);
-
-            if ($whitelists != null && sizeof($whitelists) > 0) {
-
-                $domains = array_column($whitelists, "domain");
-                $ips = array_column($whitelists, "ip_address");
-
-                var_dump($domains);
-
-                if (isset($_SERVER['HTTP_ORIGIN']) && !in_array($_SERVER['HTTP_ORIGIN'], $domains)) {
-                    http_response_code(401);
-                    echo "origin is not whitelisted.";
                     return false;
                 }
 
@@ -310,5 +285,33 @@ class Utils
             fwrite($fp, $template);
             fclose($fp);
         }
+    }
+
+    /**
+     * Validate the ISO datetime format
+     * @param $value
+     * @return bool
+     */
+    public static function validateDate($value)
+    {
+        if (preg_match('/^' .
+                '(\d{4})-(\d{2})-(\d{2})T' . // YYYY-MM-DDT ex: 2014-01-01T
+                '(\d{2}):(\d{2}):(\d{2})' .  // HH-MM-SS  ex: 17:00:00
+                '(Z|((-|\+)\d{2}:\d{2}))' .  // Z or +01:00 or -01:00
+                '$/', $value, $parts) == true) {
+            try {
+                new \DateTime($value);
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public static function convertODataToSQL($odata)
+    {
+
     }
 }
