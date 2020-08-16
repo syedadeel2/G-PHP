@@ -255,12 +255,13 @@ class OdataQueryParser
         return array_map(function ($and) {
             $items = [];
 
-            preg_match("/([\w]+)\s*(eq|ne|gt|ge|lt|le|in)\s*([\w',\(\)\s.]+)/", $and, $items);
+            preg_match("/([\w]+)\s*(eq|ne|gt|ge|lt|le|in|\*)\s*([\w',\(\)\s.]+)/", $and, $items);
 
-            $left = $items[1];
-            $operator = static::getFilterOperatorName($items[2]);
-            $right = static::getFilterRightValue($operator, $items[3]);
-
+            if (sizeof($items) > 0) {
+                $left = $items[1];
+                $operator = static::getFilterOperatorName($items[2]);
+                $right = static::getFilterRightValue($operator, $items[3]);
+            }
             /**
              * @todo check whether [1], [2] and [3] are set
              */
@@ -323,25 +324,28 @@ class OdataQueryParser
     {
         switch ($operator) {
             case $operator === "eq":
-                return "equal";
+                return "=";
 
             case $operator === "ne":
-                return "notEqual";
+                return "<>";
 
             case $operator === "gt":
-                return "greaterThan";
+                return ">";
 
             case $operator === "ge":
-                return "greaterOrEqual";
+                return ">=";
 
             case $operator === "lt":
-                return "lowerThan";
+                return "<";
 
             case $operator === "le":
-                return "lowerOrEqual";
+                return "<=";
 
             case $operator === "in":
                 return "in";
+
+            case $operator === "*":
+                return "LIKE";
 
             default:
                 return "unknown";
@@ -358,14 +362,14 @@ class OdataQueryParser
                     return (int)$value;
                 }
             } else {
-                return str_replace("'", "", trim($value));
+                return trim($value);
             }
         } else {
             $value = preg_replace("/^\s*\(|\)\s*$/", "", $value);
             $values = explode(",", $value);
 
             return array_map(function ($value) {
-                return static::getFilterRightValue("equal", $value);
+                return static::getFilterRightValue("=", $value);
             }, $values);
         }
     }

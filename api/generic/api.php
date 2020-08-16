@@ -118,7 +118,7 @@ function updateStoreData()
     }
 }
 
-function getOrFilterStoreData(bool $postFilter = false)
+function getOrFilterStoreData()
 {
 
     $app_repo = new ApplicationRepository();
@@ -135,21 +135,14 @@ function getOrFilterStoreData(bool $postFilter = false)
 
     $store_name = "$app->app_api_slug" . "_$uris[0]";
 
-    if ($postFilter == false) {
-        // GET ALL
-        if (sizeof($uris) == 2 && $uris[1] == "all") {
+    // GET ALL
+    if (sizeof($uris) == 2 && $uris[1] == "all") {
 
-            echo json_encode($generic_repo->getAll($store_name), JSON_NUMERIC_CHECK);
+        echo json_encode($generic_repo->getAll($store_name), JSON_NUMERIC_CHECK);
 
-        } else if (sizeof($uris) == 2 && is_numeric($uris[1])) { // GET ONE
+    } else if (sizeof($uris) == 2 && is_numeric($uris[1])) { // GET ONE
 
-            echo json_encode($generic_repo->getById($uris[1], $store_name), JSON_NUMERIC_CHECK);
-
-        }
-    } else if($postFilter == true && sizeof($uris) == 2 && $uris[1] == "filter") {
-
-        $data = json_decode(file_get_contents("php://input"));
-        echo json_encode($generic_repo->getAll($store_name, $data), JSON_NUMERIC_CHECK);
+        echo json_encode($generic_repo->getById($uris[1], $store_name), JSON_NUMERIC_CHECK);
 
     }
 
@@ -178,16 +171,7 @@ if (Utils::validateHeaders(false)) {
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-        $uris = processURI();
-        if (sizeof($uris) == 1) {
-
-            insertStoreData();
-
-        } elseif (sizeof($uris) == 2) {
-
-            getOrFilterStoreData(TRUE);
-
-        }
+        insertStoreData();
 
     } else if ($_SERVER["REQUEST_METHOD"] === "PUT") {
 
@@ -204,22 +188,3 @@ if (Utils::validateHeaders(false)) {
     }
 
 }
-
-//insert data
-//POST /api/app_name/store_name
-//
-//DELETE /api/app_name/store_name/9 << Delete One
-//DELETE /api/app_name/store_name/all << Delete all
-//DELETE /api/app_name/store_name/storage << Delete the store table
-
-
-//PUT /api/app_name/store_name/9 << Update existing one
-
-
-// Querys = ?cols=&order_by=&desc=true&start=&length=
-//GET /api/app_name/store_name/all << Get All Records
-//GET /api/app_name/store_name/9 << Get One
-//POST /api/app_name/store_name/filter << Filter Without Pagination
-//{
-//    "column1": ["1", "2"]
-//}

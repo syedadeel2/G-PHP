@@ -240,58 +240,50 @@ class GenericRepository
         $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         $oData = OdataQueryParser::parse($actual_link, true);
 
-        $cols = sizeof($oData) > 0 && $oData["select"] != null ? implode(",", $oData["select"]) : "*";
 
-        $order_by = "";
-        $order_by_desc = " ASC";
-        $start = null;
-        $length = null;
-        $where = "";
-
-        // Generate Where clause
-        // ==================================================
-        if ($filters != null) {
-            $cnt = 0;
-            foreach ($filters as $key => $value) {
-
-                $op = isset($value->op) ? $value->op : " AND ";
-                $cp = isset($value->cp) ? ($value->cp == "array") ? " IN " : $value->cp : " IN ";
-
-                // making sure that we dont add operators for the first one
-                if ($cnt == 0) {
-
-                    $where = "WHERE `$key`";
-                }
-
-                $cnt++;
-            }
-        }
-        // ==================================================
-
-        if (isset($_GET["cols"]) && !empty($_GET["cols"])) $cols = $_GET["cols"];
-
-        if (isset($_GET["start"]) && !empty($_GET["start"]) && is_numeric($_GET["start"]) &&
-            isset($_GET["length"]) && !empty($_GET["length"]) && is_numeric($_GET["length"])) {
-
-            $start = (int)$_GET["start"];
-            $length = (int)$_GET["length"];
-        }
-
-        if (isset($_GET["desc"]) && !empty($_GET["desc"]) && $_GET["desc"] == "true") $order_by_desc = " DESC";
-        if (isset($_GET["order_by"]) && !empty($_GET["order_by"])) $order_by = "ORDER BY " . $_GET["order_by"] . $order_by_desc;
-
+        $cols = array_key_exists("select", $oData) ? implode(",", $oData["select"]) : "*";
 
         $sql = "SELECT $cols, count(*) over () as total_records FROM $store_name";
 
+        // where if available
+        $sql .= array_key_exists("filter", $oData) ? " WHERE " . implode("AND", array_map(function ($e) {
+                $left = $e["left"];
+                $operator = $e["operator"];
+                $right = $e["right"];
+
+                $q = "$left $operator";
+                $v = is_array($right) ? "(" . implode(",", $right) . ")" : (($operator == "LIKE") ? "'%$right%'" : $right);
+                return "$q $v";
+            }, $oData["filter"])) : "";
+
+
+        // order by if available
+        $sql .= array_key_exists("orderBy", $oData) ? " ORDER BY " . implode(",", array_map(function ($e) {
+                return $e["property"] . " " . $e["direction"];
+            }, $oData["orderBy"])) : "";
+
+        // add pagination if available
         $isPagination = false;
-        if ($start != null && is_numeric($start) && $length != null && is_numeric($length)) {
-            $sql .= "$where $order_by LIMIT $length OFFSET $start";
+        $start = array_key_exists("skip", $oData) ? $oData["skip"] : null;
+        $length = array_key_exists("top", $oData) ? $oData["top"] : null;
+
+        if ($start != null && $length != null) {
+
+            $sql .= " LIMIT $length OFFSET $start";
             $isPagination = true;
+
+        } else if ($start == null && $length != null) {
+
+            $sql .= " LIMIT $length";
+            $isPagination = true;
+
+        } else if ($start != null && $length == null) {
+
+            $sql .= " LIMIT $start OFFSET $start";
+            $isPagination = true;
+
         }
 
-        if ($isPagination === false) {
-            $sql .= "$where $order_by";
-        }
 
         $result = $this->dbLink->query($sql);
 
