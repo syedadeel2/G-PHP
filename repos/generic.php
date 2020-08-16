@@ -80,9 +80,8 @@ class GenericRepository
         $insertColumns = substr($insertColumns, 0, strlen($insertColumns) - 2);
         $insertValues = substr($insertValues, 0, strlen($insertValues) - 2);
 
-        $sql = "CREATE TABLE IF NOT EXISTS $store_name (
+        $sql = "CREATE TABLE IF NOT EXISTS `$store_name` (
             `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, $tableColumns ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;" . "\n\r";
-
         // run table query first
         if ($this->dbLink->query($sql) === true) {
 
@@ -152,7 +151,7 @@ class GenericRepository
      */
     public function remove(int $id, string $store_name): bool
     {
-        $sql = "DELETE FROM $store_name WHERE id = $id";
+        $sql = "DELETE FROM `$store_name` WHERE id = $id";
         if ($this->dbLink->query($sql) === true) return true;
         return false;
     }
@@ -164,7 +163,7 @@ class GenericRepository
      */
     public function dropTable(string $store_name): bool
     {
-        $sql = "DROP TABLE $store_name";
+        $sql = "DROP TABLE `$store_name`";
         if ($this->dbLink->query($sql) === true) return true;
         return false;
     }
@@ -176,7 +175,7 @@ class GenericRepository
      */
     public function truncateTable(string $store_name): bool
     {
-        $sql = "truncate TABLE $store_name";
+        $sql = "truncate TABLE `$store_name`";
         if ($this->dbLink->query($sql) === true) return true;
         return false;
     }
@@ -193,39 +192,12 @@ class GenericRepository
         $cols = "*";
         if (isset($_GET["cols"]) && !empty($_GET["cols"])) $cols = $_GET["cols"];
 
-        $sql = "SELECT $cols FROM $store_name WHERE id = $id";
+        $sql = "SELECT $cols FROM `$store_name` WHERE id = $id";
         $result = $this->dbLink->query($sql);
 
         if ($result->num_rows > 0) return $result->fetch_assoc();
 
         return null;
-    }
-
-    /**
-     * Get the Domain Whitelist record by Application Id
-     *
-     * @param int $id
-     * @return array | null
-     */
-    public function getByApplicationId(int $id)
-    {
-
-        $sql = "SELECT * FROM $this->TABLE WHERE application_id = $id";
-        $result = $this->dbLink->query($sql);
-
-        if ($result->num_rows > 0) {
-
-            $arr = array();
-            while ($row = $result->fetch_assoc()) {
-                array_push($arr, new DomainWhitelist($row));
-            }
-
-            return $arr;
-
-        }
-
-        return null;
-
     }
 
     /**
@@ -243,7 +215,7 @@ class GenericRepository
 
         $cols = array_key_exists("select", $oData) ? implode(",", $oData["select"]) : "*";
 
-        $sql = "SELECT $cols, count(*) over () as total_records FROM $store_name";
+        $sql = "SELECT $cols, count(*) over () as total_records FROM `$store_name`";
 
         // where if available
         $sql .= array_key_exists("filter", $oData) ? " WHERE " . implode("AND", array_map(function ($e) {

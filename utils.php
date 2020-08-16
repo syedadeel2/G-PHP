@@ -273,7 +273,7 @@ class Utils
                 }
             }
 
-            $app_rewrites .= "    RewriteRule /api/$app->app_api_slug/(.*)$ api/generic/api.php [QSA,NC,L]" . "\n\r";
+            $app_rewrites .= "    RewriteRule api/$app->app_api_slug/(.*)$ api/generic/api.php [QSA,NC,L]" . "\n\r";
 
         }
 
