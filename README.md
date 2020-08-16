@@ -8,6 +8,7 @@ G-PHP is a Backend-as-a-Service(BaaS) designed for those who don't want to pay f
   - Domain & IP whitelisting for application api requests.
   - Stats for application api requests usages.
   - table-based data storage using MySQL.
+  - OData Syntax for $select, $orderby, $filter, $skip, $top ($filter do not support functions such as contains or startWith. to use the contains use * e.g. $filter=col * mytext)
 
 ### Tech
 
