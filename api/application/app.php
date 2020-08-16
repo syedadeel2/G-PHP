@@ -8,6 +8,8 @@ use Models\DomainWhitelist;
 use Repositories\ApplicationRepository;
 use Repositories\DomainWhitelistRepository;
 
+header('Content-Type: application/json');
+
 /**
  * @param ApplicationRepository $app_repo
  */
@@ -28,7 +30,7 @@ function createApp(ApplicationRepository $app_repo)
             insertOrModifyWhitelisting($data, $new_app_id);
 
             http_response_code(201);
-            echo json_encode(array("message" => "Application was created.", "x-api-key" => $app->app_key));
+            echo json_encode(array("message" => "Application was created.", "g-api-key" => $app->app_key));
             Utils::generateHtAccess();
 
         } else {
