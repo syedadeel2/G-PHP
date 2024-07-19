@@ -31,11 +31,9 @@ Base URLs:
 * <a href="http://your-domain.com/api">http://your-domain.com/api</a>
 * <a href="https://your-domain.com/api">https://your-domain.com/api</a>
 
-Email: <a href="mailto:syedadeel2@gmail.com">Adeel Rizvi</a> 
-
 <h1 id="g-app-keygen">Generate Key for Admin API calls</h1>
 
-> Enter the url in your browser <a href="http|s://your-domain.com/keys/gen">http|s://your-domain.com/keys/gen</a> This will generate the unqiue key for your server only to manage the admin related calls only.
+> Enter the url in your browser <a href="http|s://your-domain.com/keys/gen">http|s://your-domain.com/keys/gen</a> This will generate the unique key for your server only to manage the admin-related calls.
 
 <h1 id="g-php-apps">Apps</h1>
 
@@ -105,7 +103,7 @@ curl -X GET http://your-domain.com/api/admin \
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Returns the JSON array with collection of registered applications in the system|None|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Returns the JSON array with a collection of registered applications in the system|None|
 
 ## Update an existing application
 
@@ -124,7 +122,7 @@ curl -X PUT http://your-domain.com/api/admin?id=1 \
  `PUT /admin`
 *Update Application*
 
-> Body parameter - NOTE you don't need to pass whole object except those properties which you want to update.
+> Body parameter - NOTE: you don't need to pass the the whole object except those properties you want to update.
 
 ``` json
 {
@@ -185,7 +183,7 @@ curl -X POST http://your-domain.com/api/admin \
 
 > Body parameter
 
-> <h4>NOTE: "cors" is an optional property if you do not want to whitelist do not include "cors" in the body.</h4>
+> <h4>NOTE: "cors" is an optional property. If you do not want to whitelist, do not include "cors" in the body.</h4>
 
 ``` json
   {
@@ -216,7 +214,7 @@ curl -X POST http://your-domain.com/api/admin \
 
 > Example responses
 
-> Returns the message and api key for newly created application. you have to pass g-api-key in header in order to manage store.
+> Returns the message and api key for the newly created application. You have to pass g-api-key in the header to manage the store.
 
 ``` json
 {
@@ -229,7 +227,7 @@ curl -X POST http://your-domain.com/api/admin \
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Returns the message and api key for newly created application. you have to pass g-api-key in header in order to manage store.|None|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Returns the message and api key for the newly created application. you have to pass g-api-key in the header to manage the store.|None|
 
 ## Delete an existing application
 
@@ -272,10 +270,10 @@ curl -X DELETE http://your-domain.com/api/admin?id=1 \
 
 <h1 id="opIdStores">Stores</h1>
 
-> <h4>This is where you can insert/update/delete/get your store data. Please remember that at the time of creating the app whatever the app-api-slug you have passed it will update the .htaccess according to it and you can access your store using the same. E.g. http://your-domain/api/{app-api-slug}/{storename} (http://your-domain/api/adeels-app/dev-store1). Please NOTE that {store_name} can be anything whatever you want to call your store this will generate the table in MySQL with prefix of app-api-slug_storeName</h4>
+> <h4>This is where you can insert/update/delete/get your store data. Please keep in mind that when creating the app, whatever the app-api-slug you have passed will update the .htaccess accordingly, and you can access your store using the same. E.g. http://your-domain/api/{app-api-slug}/{storename} (http://your-domain/api/adeels-app/dev-store1). Please NOTE that {store_name} can be anything you want to call your store. This will generate the table in MySQL with a prefix of app-api-slug_storeName</h4>
 
-> <h4>This is table-based storage using MySql. This creates new table for each store along with your app api slug e.g. baas-app_myStoreName</h4>
-> <h4>You do not need to create the schema, upon on the first record insert it will determine the values data-type and create the table and columns according to it. Please do not use spaces or any special characters in json property name except underscores. <br/> For the complex type it does support array and object in the payload and system will generate those column as a JSON column and stores the data as JSON format. For better understanding please see the below request samples.</h4>
+> <h4>This is table-based storage using MySql. This creates a new table for each store along with your app api slug, e.g. baas-app_myStoreName</h4>
+> <h4>You do not need to create the schema; upon the first record insert, it will determine the values data type and create the table and columns according to it. Please do not use spaces or any special characters in the json property name except underscores. <br/> For the complex type, it does support array and object in the payload, and the system will generate that column as a JSON column and store the data in JSON format. For a better understanding please take a look at the request samples I've included below.</h4>
 
 ## Store - Insert Record
 
@@ -323,7 +321,7 @@ curl -X POST http://your-domain.com/api/baas-app/dev-store1 \
   ],
   "object_col": {
     "person": "adeel",
-    "email": "syedadeel2@gmail.com"
+    "email": "someemail@email.com"
   },
   "date_time_col": "2020-08-16T15:03:00.000Z"
 }
@@ -334,7 +332,7 @@ curl -X POST http://your-domain.com/api/baas-app/dev-store1 \
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
 |Accept|header|string|true|none|
-|g-api-key|header|string|true|When you have created the new app it should have return response along with g-api-key|
+|g-api-key|header|string|true|When you have created the new app, it should have a return response along with g-api-key|
 |body|body|JSON|true|none|
 
 > Example responses
@@ -420,7 +418,7 @@ curl -X PUT http://your-domain.com/api/azeem/members/2 \
   "bool_col": false,
   "object_col": {
     "person": "Adeel Rizvi",
-    "email": "syedadeel2@gmail.com"
+    "email": "someemail@email.com"
   }
 }
 ```
@@ -762,7 +760,7 @@ Cor1
   ],
   "object_col": {
     "person": "adeel",
-    "email": "syedadeel2@gmail.com"
+    "email": "someemail@email.com"
   },
   "date_time_col": "2020-08-16T15:03:00.000Z"
 }
@@ -819,7 +817,7 @@ ArrayColObject
 ``` json
 {
   "person": "adeel",
-  "email": "syedadeel2@gmail.com"
+  "email": "someemail@email.com"
 }
 
 ```
@@ -848,7 +846,7 @@ ObjectCol
   "bool_col": false,
   "object_col": {
     "person": "Adeel Rizvi",
-    "email": "syedadeel2@gmail.com"
+    "email": "someemail@email.com"
   }
 }
 
@@ -869,10 +867,7 @@ Generic-UpdateRecordRequest
 
 ### Development
 
-Want to contribute? G-PHP is open for improvements feel free to create the Pull Request to help the community greater.
-
-### Contact
-Feel free to ask any question by emailing me at syedadeel2@gmail.com
+Want to contribute? G-PHP is open to improvements, so feel free to create a Pull Request to help the community become greater.
 
 License
 ----
